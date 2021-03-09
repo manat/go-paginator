@@ -25,68 +25,93 @@ type Paginator struct {
 
 // NewPaginator constructs a Paginator instance with default values.
 func NewPaginator(r *http.Request, pageSize, total int64) Paginator {
-	scheme := "http"
-	if r.TLS != nil {
-		scheme = "https"
-	}
-	url := url.URL{
-		Scheme: scheme,
-		Host:   r.Host,
-		Path:   r.URL.Path,
-	}
-
 	totalPage := (total-1)/pageSize + 1 // Ceiling trick from https://stackoverflow.com/a/54006084
 
 	return Paginator{
 		PageSize:  pageSize,
 		TotalPage: totalPage,
-		URL:       url,
+		URL:       getURL(r),
 	}
 }
 
 // AsLinkHeader generates link header (RFC 5988) from the given page.
+// Empty string is returned when page is out of range.
 func (p *Paginator) AsLinkHeader(page int64) string {
+	if page < 1 || p.TotalPage < page {
+		return ""
+	}
+
 	links := make([]link.Link, 0, 4)
 
 	if page < p.TotalPage {
+		nextPage := page + 1
 		p.setURLWithPageQuery(page + 1)
 		links = append(links, link.Link{
 			URI: p.URL.String(),
 			Rel: link.NextRel,
 		})
 
-		p.setURLWithPageQuery(p.TotalPage)
-		links = append(links, link.Link{
-			URI: p.URL.String(),
-			Rel: link.LastRel,
-		})
+		if nextPage != p.TotalPage {
+			p.setURLWithPageQuery(p.TotalPage)
+			links = append(links, link.Link{
+				URI: p.URL.String(),
+				Rel: link.LastRel,
+			})
+		}
 	}
 
 	if page > 1 {
-		p.setURLWithPageQuery(page - 1)
+		prevPage := page - 1
+		p.setURLWithPageQuery(prevPage)
 		links = append(links, link.Link{
 			URI: p.URL.String(),
 			Rel: link.PrevRel,
 		})
 
-		p.setURLWithPageQuery(1)
-		links = append(links, link.Link{
-			URI: p.URL.String(),
-			Rel: link.FirstRel,
-		})
+		if prevPage > 1 {
+			p.setURLWithPageQuery(1)
+			links = append(links, link.Link{
+				URI: p.URL.String(),
+				Rel: link.FirstRel,
+			})
+		}
 	}
 
 	linkHeaders, err := link.Serialize(links)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return linkHeaders
 }
 
+// setURLWithPageQuery mutates Paginator URL with page info.
 func (p *Paginator) setURLWithPageQuery(page int64) {
 	pageQuery := p.URL.Query()
 	pageQuery.Set(PageParam, strconv.Itoa(int(page)))
 
 	p.URL.RawQuery = pageQuery.Encode()
+}
+
+// getURL creates an URL from the given request.
+func getURL(r *http.Request) url.URL {
+	if r == nil {
+		return url.URL{}
+	}
+
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
+
+	path := ""
+	if r.URL != nil {
+		path = r.URL.Path
+	}
+
+	return url.URL{
+		Scheme: scheme,
+		Host:   r.Host,
+		Path:   path,
+	}
 }
