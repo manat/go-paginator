@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/manat/link-header/link"
+	"github.com/manat/go-link-header/link"
 )
 
 var (
