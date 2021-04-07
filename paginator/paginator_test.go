@@ -19,6 +19,15 @@ func TestAsLinkHeader(t *testing.T) {
 		},
 	}
 
+	fullReq := &http.Request{
+		URL: &url.URL{
+			Scheme:   "http",
+			Host:     "goo.gl",
+			Path:     "goo.gl/scx",
+			RawQuery: "q2=test&page=1&page_size=10&q1=val",
+		},
+	}
+
 	emptyReq := &http.Request{}
 
 	tests := []struct {
@@ -80,6 +89,33 @@ func TestAsLinkHeader(t *testing.T) {
 				int64(7)), // total
 			int64(5), // page
 			``,
+		},
+		{
+			"page 1/3 with link header replaces original page and retains other query params",
+			NewPaginator(
+				fullReq,
+				int64(3),  // pageSize
+				int64(7)), // total
+			int64(1), // page
+			`Link: <http://goo.gl/scx?page=2&page_size=10&q1=val&q2=test>; rel="next", <http://goo.gl/scx?page=3&page_size=10&q1=val&q2=test>; rel="last"`,
+		},
+		{
+			"page 2/3 with link header replaces original page and retains other query params",
+			NewPaginator(
+				fullReq,
+				int64(3),  // pageSize
+				int64(7)), // total
+			int64(2), // page
+			`Link: <http://goo.gl/scx?page=3&page_size=10&q1=val&q2=test>; rel="next", <http://goo.gl/scx?page=1&page_size=10&q1=val&q2=test>; rel="prev"`,
+		},
+		{
+			"page 3/3 with link header replaces original page and retains other query params",
+			NewPaginator(
+				fullReq,
+				int64(3),  // pageSize
+				int64(7)), // total
+			int64(3), // page
+			`Link: <http://goo.gl/scx?page=2&page_size=10&q1=val&q2=test>; rel="prev", <http://goo.gl/scx?page=1&page_size=10&q1=val&q2=test>; rel="first"`,
 		},
 		{
 			"empty req will show blank",
