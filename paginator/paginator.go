@@ -104,14 +104,16 @@ func getURL(r *http.Request) url.URL {
 		scheme = "https"
 	}
 
-	path := ""
+	path, rawQuery := "", ""
 	if r.URL != nil {
 		path = r.URL.Path
+		rawQuery = r.URL.RawQuery
 	}
 
 	return url.URL{
-		Scheme: scheme,
-		Host:   r.Host,
-		Path:   path,
+		Scheme:   scheme,
+		Host:     r.Host,
+		Path:     path,
+		RawQuery: rawQuery,
 	}
 }
