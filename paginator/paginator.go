@@ -41,7 +41,7 @@ func (p *Paginator) AsLinkHeader(page int64) string {
 		return ""
 	}
 
-	links := make([]link.Link, 0, 4)
+	links := make([]link.Link, 0, 4) //nolint:gomnd // there are 4 type of links
 
 	if page < p.TotalPage {
 		nextPage := page + 1

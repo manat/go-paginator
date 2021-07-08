@@ -43,7 +43,7 @@ func TestAsLinkHeader(t *testing.T) {
 				int64(3),  // pageSize
 				int64(7)), // total
 			int64(1), // page
-			`Link: <http://goo.gl/scx?page=2>; rel="next", <http://goo.gl/scx?page=3>; rel="last"`,
+			`<http://goo.gl/scx?page=2>; rel="next", <http://goo.gl/scx?page=3>; rel="last"`,
 		},
 		{
 			"page 2/3 will show next and prev",
@@ -52,7 +52,7 @@ func TestAsLinkHeader(t *testing.T) {
 				int64(3),  // pageSize
 				int64(7)), // total
 			int64(2), // page
-			`Link: <http://goo.gl/scx?page=3>; rel="next", <http://goo.gl/scx?page=1>; rel="prev"`,
+			`<http://goo.gl/scx?page=3>; rel="next", <http://goo.gl/scx?page=1>; rel="prev"`,
 		},
 		{
 			"page 3/3 will show prev and first",
@@ -61,7 +61,7 @@ func TestAsLinkHeader(t *testing.T) {
 				int64(3),  // pageSize
 				int64(7)), // total
 			int64(3), // page
-			`Link: <http://goo.gl/scx?page=2>; rel="prev", <http://goo.gl/scx?page=1>; rel="first"`,
+			`<http://goo.gl/scx?page=2>; rel="prev", <http://goo.gl/scx?page=1>; rel="first"`,
 		},
 		{
 			"page 0/3 will show blank",
@@ -97,7 +97,7 @@ func TestAsLinkHeader(t *testing.T) {
 				int64(3),  // pageSize
 				int64(7)), // total
 			int64(1), // page
-			`Link: <http://goo.gl/scx?page=2&page_size=10&q1=val&q2=test>; rel="next", <http://goo.gl/scx?page=3&page_size=10&q1=val&q2=test>; rel="last"`,
+			`<http://goo.gl/scx?page=2&page_size=10&q1=val&q2=test>; rel="next", <http://goo.gl/scx?page=3&page_size=10&q1=val&q2=test>; rel="last"`,
 		},
 		{
 			"page 2/3 with link header replaces original page and retains other query params",
@@ -106,7 +106,7 @@ func TestAsLinkHeader(t *testing.T) {
 				int64(3),  // pageSize
 				int64(7)), // total
 			int64(2), // page
-			`Link: <http://goo.gl/scx?page=3&page_size=10&q1=val&q2=test>; rel="next", <http://goo.gl/scx?page=1&page_size=10&q1=val&q2=test>; rel="prev"`,
+			`<http://goo.gl/scx?page=3&page_size=10&q1=val&q2=test>; rel="next", <http://goo.gl/scx?page=1&page_size=10&q1=val&q2=test>; rel="prev"`,
 		},
 		{
 			"page 3/3 with link header replaces original page and retains other query params",
@@ -115,7 +115,7 @@ func TestAsLinkHeader(t *testing.T) {
 				int64(3),  // pageSize
 				int64(7)), // total
 			int64(3), // page
-			`Link: <http://goo.gl/scx?page=2&page_size=10&q1=val&q2=test>; rel="prev", <http://goo.gl/scx?page=1&page_size=10&q1=val&q2=test>; rel="first"`,
+			`<http://goo.gl/scx?page=2&page_size=10&q1=val&q2=test>; rel="prev", <http://goo.gl/scx?page=1&page_size=10&q1=val&q2=test>; rel="first"`,
 		},
 		{
 			"empty req will show blank",
