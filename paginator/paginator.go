@@ -104,6 +104,11 @@ func getURL(r *http.Request) url.URL {
 		scheme = "https"
 	}
 
+	proto := r.Header.Get("X-Forwarded-Proto")
+	if proto == "https" {
+		scheme = "https"
+	}
+
 	path, rawQuery := "", ""
 	if r.URL != nil {
 		path = r.URL.Path

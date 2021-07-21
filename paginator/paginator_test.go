@@ -1,6 +1,7 @@
 package paginator
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 	"testing"
@@ -27,6 +28,9 @@ func TestAsLinkHeader(t *testing.T) {
 			RawQuery: "q2=test&page=1&page_size=10&q1=val",
 		},
 	}
+
+	httpsReq, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "https://goo.gl/scx?q2=test&page=1&page_size=10&q1=val", nil)
+	httpsReq.Header.Set("X-forwarded-proto", "https") // header is case insensitive
 
 	emptyReq := &http.Request{}
 
@@ -116,6 +120,15 @@ func TestAsLinkHeader(t *testing.T) {
 				int64(7)), // total
 			int64(3), // page
 			`<http://goo.gl/scx?page=2&page_size=10&q1=val&q2=test>; rel="prev", <http://goo.gl/scx?page=1&page_size=10&q1=val&q2=test>; rel="first"`,
+		},
+		{
+			"page 1/3 with link header of https request",
+			NewPaginator(
+				httpsReq,
+				int64(3),  // pageSize
+				int64(7)), // total
+			int64(1), // page
+			`<https://goo.gl/scx?page=2&page_size=10&q1=val&q2=test>; rel="next", <https://goo.gl/scx?page=3&page_size=10&q1=val&q2=test>; rel="last"`,
 		},
 		{
 			"empty req will show blank",
